@@ -2,7 +2,7 @@
 
 # Variables
 EXTENSION_NAME = vibe-checks
-EXTENSION_DIR = ~/.vscode/extensions/$(EXTENSION_NAME)
+EXTENSION_DIR = ~/.vscode/extensions/$(EXTENSION_NAME)-dev
 BUILD_DIR = out
 NODE_MODULES = node_modules
 

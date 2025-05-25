@@ -2,13 +2,10 @@
     "name": "vibe-checks",
     "displayName": "Vibe Checks",
     "description": "Natural-Language Linter for Your Codebase",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "pricing": "Free",
     "publisher": "Alfredvc",
     "icon": "assets/icon.png",
-    "extensionDependencies": [
-        "github.copilot"
-    ],
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -48,6 +45,11 @@
             {
                 "command": "vibeChecks.clearCache",
                 "title": "Clear Vibe Checks Cache",
+                "category": "Vibe Checks"
+            },
+            {
+                "command": "vibeChecks.runCheckRepo",
+                "title": "Vibe check changes",
                 "category": "Vibe Checks"
             }
         ],

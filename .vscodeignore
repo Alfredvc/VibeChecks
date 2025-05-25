@@ -4,3 +4,5 @@
 node_modules
 .tsconfig.json
 .DS_Store
+assets/context-menu.png
+assets/logo.png

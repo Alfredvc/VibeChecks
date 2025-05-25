@@ -2,18 +2,22 @@
 
 **Natural-Language Linter for Your Codebase**
 
-Vibe Checks lets you define review rules in plain Markdown and then uses GitHub Copilot to enforce them—no more wrestling with arcane config files. Think of it as a _**vibe check**_ for your code: set the mood, set the rules, and let Copilot do the rest.
+Vibe Checks lets you define review rules in plain Markdown and then uses an LLM to enforce them. Think of it as a _**vibe check**_ for your code: set the mood, and let AI do the rest.
+
+---
+## Why? I have ESlint
+Yeah, so do I. But sometimes there are guidelines that are difficult to verify programatically, but simple to explain in words.
 
 ---
 
 ## Getting Started
 
 ### Requirements
-You must have Github Copilot configured in your VSCode.
+You must have some extension that provides a Language model via the [VSCode Language Model API](https://code.visualstudio.com/api/extension-guides/language-model). I use [Github Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot), but there are probably others.
 
 ### 1. Install the Extension
 
-- Install "Vibe Checks" from the VSCode Marketplace or load as a development extension.
+- Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=Alfredvc.vibe-checks) or directly in VSCode.
 
 ### 2. Configure Your Language Model
 
@@ -26,17 +30,16 @@ You must have Github Copilot configured in your VSCode.
 - Create a `.vibe-checks` folder in your workspace root (or set a custom path)
 - Add one or more `.md` files with your review rules
 - You can organize rules by topic (e.g., `style-guide.md`, `security.md`)
-- Use markdown headings (e.g., `## JavaScript/TypeScript`) for language-specific rules
+- Use markdown headings (e.g., `## JavaScript`) for language-specific rules (must be in the exact format `## language`)
 
-**Example: `.vibe-checks/style-guide.md`**
+**Example: `.vibe-checks/typescript-tips.md`**
 ```markdown
-# Code Style Guidelines
+# Guidelines
 
-## JavaScript/TypeScript
-- Use camelCase for variables and functions
-- Use PascalCase for classes and interfaces
-- Always use semicolons
-- Maximum line length of 100 characters
+## TypeScript
+- When creating constant objects or arrays, use as const to make them truly immutable.
+- Instead of duplicating code, use utility types like Partial, Pick and Omit.
+- Use `never` to ensure all cases are handled in `switch` statements.
 ```
 
 ---
@@ -44,72 +47,26 @@ You must have Github Copilot configured in your VSCode.
 ## Usage
 
 - **Manual Check**: Run `Vibe Checks: Vibe check file` to check the active file
-- **Automatic Check**: Configure checks to run
+- **Repo Changes Check**: Run `Vibe Checks: Vibe check changes` to check all changed, staged, and new files (only staged) in your repository
+- **Automatic Check**: Configure checks to run automatically ( experimental, not recommended )
 - **File explorer**: Simply right click a file and `Vibe check file`
-
-## Configuration
-
-Configure via VSCode settings (`.vscode/settings.json` or Command Palette):
-
-```json
-{
-  "vibeChecks.instructionsFolder": "${workspaceFolder}/.vibe-checks",
-  "vibeChecks.modelId": "copilot-gpt-4",
-  "vibeChecks.inEditorFeedback": true,
-  "vibeChecks.runOn": "onCommand", // or "onSave", "onOpen", "onChange"
-  "vibeChecks.scope": "wholeFile" // or "changedLines"
-}
-```
-
-**Settings:**
-- `vibeChecks.instructionsFolder`: Path to your markdown instruction files
-- `vibeChecks.modelId`: ID of the language model to use
-- `vibeChecks.inEditorFeedback`: Show feedback as diagnostics in the editor
-- `vibeChecks.runOn`: When to run checks (`onCommand`, `onSave`, `onOpen`, `onChange`)
-- `vibeChecks.scope`: Check the whole file or only changed lines
-
----
-
-## How It Works
-
-1. **Instruction Gathering**: Reads and concatenates all markdown files in your instructions folder
-2. **Diff Analysis**: Captures git diffs (staged/unstaged) or file content
-3. **AI Review**: Sends instructions and diff to your configured language model
-4. **Result Processing**: Parses the AI's JSON response for pass/fail, errors, and warnings
-5. **User Feedback**: Displays results in the output panel, notifications, and as diagnostics
-6. **Caching**: Skips re-analysis if nothing has changed
-
----
-
-## Example Instruction Files
-
-**`.vibe-checks/security.md`**
-```markdown
-# Security Guidelines
-- Never commit API keys, passwords, or secrets
-- Use environment variables for sensitive data
-- Validate all user inputs
-- Use parameterized queries for database operations
-```
-
-**`.vibe-checks/performance.md`**
-```markdown
-# Performance Guidelines
-- Avoid nested loops where possible
-- Use efficient data structures
-- Consider lazy loading for large datasets
-- Profile database queries for optimization opportunities
-```
-
----
-## From the context menu
 ![ContextMenuExample](assets/context-menu.png)
+
+---
+## Examples
+In the examples folder you can find some examples of instructions.
+
+### [Supabase functions](examples/supabase-functions.md)
+Adapted from [supabase's own prompts](https://supabase.com/docs/guides/getting-started/ai-prompts/database-functions).
+
+**This is an excellent example of why this extension is useful.**
 
 ---
 
 ## Commands
 
 - `Vibe Checks: Vibe check file` — Run check on the active file
+- `Vibe Checks: Vibe check changes` — Run checks on all changed, staged, and new files in the repository
 - `Vibe Checks: Choose Model` — Select a language model
 - `Vibe Checks: Clear Vibe Checks Cache` — Clear cached results
 
@@ -118,12 +75,11 @@ Configure via VSCode settings (`.vscode/settings.json` or Command Palette):
 ## Features
 
 - [x] **Customizable Review Criteria**: Define your own review rules in markdown files
-- [x] **In-Editor Feedback**: Errors and warnings appear as diagnostics in the editor
+- [x] **In-Editor Feedback**: Errors and warnings appear in the editor itself
 - [x] **Smart Caching**: Avoids redundant analysis by caching results
-- [x] **Automatic Triggers**: Run checks on command, save, open, or change
+- [x] **Automatic Triggers**: Run checks on command, save, open, or change. (experimental, not recommended)
 - [x] **Model Selection**: Easily choose from available language models
-- [ ] **Check all changes since last commit**: Soon!
-- [ ] **Check multiple files at once**: 
+- [x] **Check all changes since last commit**
 
 ---
 
@@ -133,6 +89,7 @@ Configure via VSCode settings (`.vscode/settings.json` or Command Palette):
 - **"Instructions folder not found"**: Create `.vibe-checks` in your workspace.
 - **"No instructions found"**: Add at least one `.md` instruction file to your `.vibe-checks`.
 - **Model not found**: Use `Vibe Checks: Choose Model` to select an available model
+- **Other**: Try clearing the cache? 🤷
 
 ---
 
@@ -141,7 +98,6 @@ Configure via VSCode settings (`.vscode/settings.json` or Command Palette):
 1. Clone the repository
 2. Run `npm install`
 3. Open in VSCode and press F5 to launch the development host
-4. Edit `src/extension.ts` and reload to test changes
 
 ---
 

@@ -1,14 +1,22 @@
-export function buildPrompt(instructions: string, diff: string): string {
-    return `You are a code review assistant. Only provide feedback based strictly on the instructions provided below, which are sourced from the user's .vibe-checks folder (or the configured instructions folder). Do not invent or assume any rules that are not explicitly present in these instructions.
+export function buildPrompt(instructions: string, diff: string, filename: string, language: string): string {
+    return `You are a code review assistant. Only provide feedback based strictly on the instructions provided below. Do not invent or assume any rules that are not explicitly present in these instructions. You will be given a git diff of a file, or the full contents of the file. If a rule is not relevant for the language of the file, ignore it.
 
-INSTRUCTIONS (from .vibe-checks):
+    
+INSTRUCTIONS
+\`\`\`
 ${instructions}
+\`\`\`
+    
+FILENAME: ${filename}
+LANGUAGE: ${language}
 
-GIT DIFF TO REVIEW (for a single file):
+GIT DIFF or FILE CONTENTS:
+\`\`\`
 ${diff}
+\`\`\`
 
 Your task:
-- Analyze the git diff against ONLY the provided instructions.
+- Analyze the git diff or file content against ONLY the provided instructions.
 - If there are no relevant instructions for the changes, respond with a passing result and do not provide additional feedback.
 - If there are issues, output errors and warnings as objects, each with the following fields:
   - line: the line number (1-based) if available, or null if not applicable

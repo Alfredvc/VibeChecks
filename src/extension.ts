@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
             const models = await vscode.lm.selectChatModels();
             const modelItems = models.map(model => ({
                 label: model.id,
-                description: model.name || model.id
+                description: `${model.vendor}: ${model.name}`,
             }));
 
             const selectedModel = await vscode.window.showQuickPick(modelItems, {
@@ -41,50 +41,19 @@ export function activate(context: vscode.ExtensionContext) {
     const clearCacheCommand = vscode.commands.registerCommand('vibeChecks.clearCache', () => {
         provider.clearCache();
     });
-    const showWarningsCommand = vscode.commands.registerCommand('vibeChecks.showWarnings', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showWarningMessage('No active editor to show warnings.');
-            return;
-        }
-        const document = editor.document;
-        const config = vscode.workspace.getConfiguration('vibeChecks');
-        const inEditorFeedback = config.get('inEditorFeedback', true);
-        if (!inEditorFeedback) {
-            vscode.window.showWarningMessage('In-editor feedback is disabled. Enable it in settings to see warnings.');
-            return;
-        }
-        // Re-run the check to refresh warnings
-        await provider.runCheck(document);
-    });
-    const ignoreWarningsCommand = vscode.commands.registerCommand('vibeChecks.ignoreWarnings', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showWarningMessage('No active editor to ignore warnings.');
-            return;
-        }
-        const document = editor.document;
-        const config = vscode.workspace.getConfiguration('vibeChecks');
-        const inEditorFeedback = config.get('inEditorFeedback', true);
-        if (!inEditorFeedback) {
-            vscode.window.showWarningMessage('In-editor feedback is disabled. Enable it in settings to ignore warnings.');
-            return;
-        }
-        // Use public method to clear diagnostics
-        provider.clearDiagnostics(document);
-        vscode.window.showInformationMessage('Ignored all warnings for this file.');
-    });
     const openSettingsCommand = vscode.commands.registerCommand('vibeChecks.openSettings', async () => {
-        await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:vibe-checks vibeChecks');
+        await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:alfredvc.vibe-checks ');
+    });
+    const runCheckRepoCommand = vscode.commands.registerCommand('vibeChecks.runCheckRepo', async () => {
+        await provider.runCheckOnRepoChanges();
     });
     context.subscriptions.push(
         runCheckFileCommand,
         chooseModelCommand,
         clearCacheCommand,
-        showWarningsCommand,
-        ignoreWarningsCommand,
         openSettingsCommand,
-        provider
+        provider,
+        runCheckRepoCommand
     );
 
     // Register triggers
