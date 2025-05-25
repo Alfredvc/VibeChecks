@@ -2,7 +2,7 @@
 
 **Natural-Language Linter for Your Codebase**
 
-Vibe Checks lets you define review rules in plain Markdown and then uses an LLM to enforce them. Think of it as a _**vibe check**_ for your code: set the mood, and let AI do the rest.
+Vibe Checks lets you define rules in plain Markdown and then uses an LLM to enforce them. Think of it as a _**vibe check**_ for your code: set the mood, and let AI do the rest.
 
 ---
 ## Why? I have ESlint
@@ -80,6 +80,7 @@ Adapted from [supabase's own prompts](https://supabase.com/docs/guides/getting-s
 - [x] **Automatic Triggers**: Run checks on command, save, open, or change. (experimental, not recommended)
 - [x] **Model Selection**: Easily choose from available language models
 - [x] **Check all changes since last commit**
+- [ ] **Fix the line number bug**
 
 ---
 
@@ -98,6 +99,10 @@ Adapted from [supabase's own prompts](https://supabase.com/docs/guides/getting-s
 1. Clone the repository
 2. Run `npm install`
 3. Open in VSCode and press F5 to launch the development host
+
+---
+## Known bugs
+Line numbers can be wrong some times.
 
 ---
 
