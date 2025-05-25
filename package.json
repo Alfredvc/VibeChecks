@@ -1,0 +1,115 @@
+{
+    "name": "vibe-checks",
+    "displayName": "Vibe Checks",
+    "description": "AI-powered code review using VSCode Language Model API",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "vibeChecks.runCheckFile",
+                "title": "Vibe check file",
+                "category": "Vibe Checks"
+            },
+            {
+                "command": "vibeChecks.chooseModel",
+                "title": "Choose Model",
+                "category": "Vibe Checks"
+            },
+            {
+                "command": "vibeChecks.openSettings",
+                "title": "Open Vibe Checks Settings",
+                "category": "Vibe Checks"
+            },
+            {
+                "command": "vibeChecks.clearCache",
+                "title": "Clear Vibe Checks Cache",
+                "category": "Vibe Checks"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "-",
+                    "group": "vibeChecks@0"
+                },
+                {
+                    "command": "vibeChecks.runCheckFile",
+                    "when": "explorerResourceIsFolder == false",
+                    "group": "vibeChecks@1"
+                },
+                {
+                    "command": "-",
+                    "group": "vibeChecks@2"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "Vibe Checks",
+            "properties": {
+                "vibeChecks.instructionsFolder": {
+                    "type": "string",
+                    "default": "${workspaceFolder}/.vibe-checks",
+                    "description": "Path to the folder containing check instruction markdown files"
+                },
+                "vibeChecks.modelId": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Language model ID to use for check analysis"
+                },
+                "vibeChecks.inEditorFeedback": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show Vibe Check feedback directly in the editor using diagnostics."
+                },
+                "vibeChecks.runOn": {
+                    "type": "string",
+                    "enum": [
+                        "onCommand",
+                        "onSave",
+                        "onOpen",
+                        "onChange"
+                    ],
+                    "default": "onCommand",
+                    "description": "When to run Vibe Checks: on demand, on save, on open, or on change."
+                },
+                "vibeChecks.scope": {
+                    "type": "string",
+                    "enum": [
+                        "wholeFile",
+                        "changedLines"
+                    ],
+                    "default": "wholeFile",
+                    "description": "Whether to check the whole file or only lines changed from the last git commit."
+                },
+                "vibeChecks.debugPrompt": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, saves the full prompt and LLM response to debug-prompt.json and debug-response.json in the workspace root for debugging purposes."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./"
+    },
+    "devDependencies": {
+        "@types/node": "16.x",
+        "@types/vscode": "^1.74.0",
+        "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "ignore": "^7.0.4"
+    }
+}
