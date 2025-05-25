@@ -1,6 +1,6 @@
 ![Vibe checks logo](assets/logo.png)
 
-**Natural‑Language Linter for Your Codebase**
+**Natural-Language Linter for Your Codebase**
 
 Vibe Checks lets you define review rules in plain Markdown and then uses GitHub Copilot to enforce them—no more wrestling with arcane config files. Think of it as a _**vibe check**_ for your code: set the mood, set the rules, and let Copilot do the rest.
 

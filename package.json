@@ -1,13 +1,28 @@
 {
     "name": "vibe-checks",
     "displayName": "Vibe Checks",
-    "description": "AI-powered code review using VSCode Language Model API",
-    "version": "0.0.1",
+    "description": "Natural-Language Linter for Your Codebase",
+    "version": "1.0.0",
+    "pricing": "Free",
+    "publisher": "Alfredvc",
+    "icon": "assets/icon.png",
+    "extensionDependencies": [
+        "github.copilot"
+    ],
     "engines": {
-        "vscode": "^1.74.0"
+        "vscode": "^1.90.0"
     },
     "categories": [
-        "Other"
+        "Linters",
+        "AI",
+        "Machine Learning"
+    ],
+    "keywords": [
+        "vibe checks",
+        "vibe check",
+        "lint",
+        "github copilot",
+        ""
     ],
     "activationEvents": [
         "onStartupFinished"
@@ -111,5 +126,9 @@
     },
     "dependencies": {
         "ignore": "^7.0.4"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Alfredvc/VibeChecks.git"
     }
 }
