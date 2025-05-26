@@ -68,7 +68,17 @@ export async function callLanguageModel(instructions: string, diff: string, mode
         return response;
 
     } catch (error) {
-        throw new Error(`Language model request failed: ${error}`);
+        let details = ''
+        try {
+            const models = await vscode.lm.selectChatModels();
+            const targetModel = models.find(model => model.id === modelId);
+            if (targetModel && targetModel.family === 'copilot') {
+                details = "There might be something wrong with Github Copilot. Check https://githubstatus.com ";
+            }
+        } catch {
+            // Ignore errors while fetching models
+        }
+        throw new Error(`Language model request failed: ${error}${details}`);
     }
 }
 
