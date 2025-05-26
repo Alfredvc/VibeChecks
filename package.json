@@ -2,7 +2,7 @@
     "name": "vibe-checks",
     "displayName": "Vibe Checks",
     "description": "Natural-Language Linter for Your Codebase",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "pricing": "Free",
     "publisher": "Alfredvc",
     "icon": "assets/icon.png",
@@ -102,8 +102,7 @@
                 "vibeChecks.scope": {
                     "type": "string",
                     "enum": [
-                        "wholeFile",
-                        "changedLines"
+                        "wholeFile"
                     ],
                     "default": "wholeFile",
                     "description": "Whether to check the whole file or only lines changed from the last git commit."
@@ -127,7 +126,8 @@
         "typescript": "^4.9.4"
     },
     "dependencies": {
-        "ignore": "^7.0.4"
+        "ignore": "^7.0.4",
+        "ts-node": "^10.9.2"
     },
     "repository": {
         "type": "git",
