@@ -80,9 +80,13 @@ export function activate(context: vscode.ExtensionContext) {
         );
     }
 
-    vscode.window.showInformationMessage(
-        'Vibe Checks extension activated! Use "Configure Vibe Checks" to set up your language model.'
-    );
+    const hasActivated = context.globalState.get<boolean>('vibeChecksActivated');
+    if (!hasActivated) {
+        vscode.window.showInformationMessage(
+            'Vibe Checks extension activated! Use "Configure Vibe Checks" to set up your language model.'
+        );
+        context.globalState.update('vibeChecksActivated', true);
+    }
 }
 
 export function deactivate() {}
