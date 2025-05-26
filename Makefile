@@ -1,8 +1,10 @@
 # Vibe Checks VSCode Extension Makefile
 
 # Variables
-EXTENSION_NAME = vibe-checks
-EXTENSION_DIR = ~/.vscode/extensions/$(EXTENSION_NAME)-dev
+EXTENSION_NAME = $(shell npm pkg get name | tr -d '"')
+EXTENSION_PUBLISHER = $(shell npm pkg get publisher | tr -d '"' | tr '[:upper:]' '[:lower:]')
+EXTENSION_VERSION = $(shell npm pkg get version | tr -d '"')
+EXTENSION_DIR = ~/.vscode/extensions/${EXTENSION_PUBLISHER}.$(EXTENSION_NAME)-$(EXTENSION_VERSION)
 BUILD_DIR = out
 NODE_MODULES = node_modules
 
@@ -103,6 +105,10 @@ status:
 		echo "❌ Extension is not installed"; \
 	fi
 
+.PHONY: prompt
+prompt:
+	@npx ts-node scripts/print-prompt.ts
+
 # Show help
 .PHONY: help
 help:
@@ -119,6 +125,7 @@ help:
 	@echo "  dev         - Start extension in development mode"
 	@echo "  package     - Create VSIX package"
 	@echo "  status      - Check if extension is installed"
+	@echo "  prompt      - Print the LLM prompt"
 	@echo "  help        - Show this help message"
 	@echo ""
 	@echo "Quick start:"

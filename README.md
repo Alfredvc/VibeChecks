@@ -79,8 +79,7 @@ Adapted from [supabase's own prompts](https://supabase.com/docs/guides/getting-s
 - [x] **Smart Caching**: Avoids redundant analysis by caching results
 - [x] **Automatic Triggers**: Run checks on command, save, open, or change. (experimental, not recommended)
 - [x] **Model Selection**: Easily choose from available language models
-- [x] **Check all changes since last commit**
-- [ ] **Fix the line number bug**
+- [x] **Check all files changed since last commit**
 
 ---
 

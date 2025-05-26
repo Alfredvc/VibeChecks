@@ -2,13 +2,12 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { getGitDiffForFile } from './diff';
 import { CheckResult } from './types';
 import { getVibeCheckCandidatesFromGitStatus } from './git-utils';
-import { readInstructions, resolveWorkspacePath } from './utils';
 import { Cache } from './cache';
 import { parseResponse, callLanguageModel } from './llm';
 import { Diagnostics } from './diagnostics';
+import { getInstructions } from './instructions';
 
 
 export class VibeChecksProvider {
@@ -32,14 +31,17 @@ export class VibeChecksProvider {
     async runCheckOnActiveEditor() {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
-            vscode.window.showWarningMessage('No active editor to run Vibe Check on.');
+            vscode.window.showErrorMessage('Vibe Checks: No active editor to run Vibe Check on.');
             return;
         }
-        // Only run on the active editor, never fallback to workspace diff
-        await this.runCheck(editor.document);
+        const instructions = await getInstructions();
+        if (!instructions) {
+            return;
+        }
+        await this.runCheck(editor.document, instructions);
     }
 
-    async runCheck(document: vscode.TextDocument, showNotification: boolean = true): Promise<CheckResult> {
+    async runCheck(document: vscode.TextDocument, instructions: string, showNotification: boolean = true): Promise<CheckResult> {
         try {
             this.outputChannel.show();
             const filePath = document?.uri.fsPath;
@@ -49,32 +51,13 @@ export class VibeChecksProvider {
 
             // Get configuration
             const config = vscode.workspace.getConfiguration('vibeChecks');
-            const instructionsFolder = resolveWorkspacePath(config.get('instructionsFolder') as string);
             const modelId = config.get('modelId') as string;
             const inEditorFeedback = config.get('inEditorFeedback', true);
             const scope = String(config.get('scope', 'wholeFile'));
-
+            
             if (!modelId) {
                 vscode.window.showErrorMessage('No language model configured. Please set vibeChecks.modelId in settings.');
                 throw new Error('No language model configured. Please set vibeChecks.modelId in settings.');
-            }
-
-            // Read instructions (language-aware)
-            const languageId = document ? document.languageId : 'Unknown';
-            let instructions = '';
-            try {
-                instructions = await readInstructions(instructionsFolder, languageId);
-            } catch (err) {
-                const msg = err instanceof Error ? err.message : String(err);
-                if (msg.includes('Instructions folder not found')) {
-                    vscode.window.showErrorMessage('Vibe Checks: No instructions folder found. Please create a .vibe-checks folder in your workspace and add at least one markdown (.md) file with your instructions.');
-                } else if (msg.includes('No instructions found')) {
-                    vscode.window.showErrorMessage('Vibe Checks: No instruction files found in your .vibe-checks folder. Please add at least one markdown (.md) file with your instructions.');
-                } else {
-                    vscode.window.showErrorMessage('Vibe Checks: ' + msg);
-                }
-                this.outputChannel.appendLine('❌ Error: ' + msg);
-                return { passed: false, errors: [msg], warnings: [] };
             }
 
             // Get content to check
@@ -83,20 +66,6 @@ export class VibeChecksProvider {
                 return { passed: false, errors: ['No document provided for Vibe Check.'], warnings: [] };
             }
             const fileContent = document.getText();
-            let diff = '';
-            if (scope === 'changedLines') {
-                diff = await getGitDiffForFile(filePath);
-            } else {
-                diff = fileContent;
-            }
-
-            if (!diff.trim()) {
-                this.outputChannel.appendLine('ℹ️  No changes detected or no files found to check.');
-                if (inEditorFeedback && document) {
-                    this.diagnostics.clearDiagnostics(document);
-                }
-                return { passed: true, errors: [], warnings: [] };
-            }
 
             // --- Caching logic ---
             const instructionsHash = crypto.createHash('sha256').update(instructions).digest('hex');
@@ -112,7 +81,7 @@ export class VibeChecksProvider {
                 return result;
             }
             // Call language model
-            const response = await callLanguageModel(instructions, diff, modelId, filePath, languageId);
+            const response = await callLanguageModel(instructions, fileContent, modelId, filePath, document.languageId);
             // Cache the result
             this.cache.set(cacheKey, { instructionsHash, fileHash, response });
             // Analyze result
@@ -160,6 +129,12 @@ export class VibeChecksProvider {
             vscode.window.showInformationMessage('No changed files to check.');
             return;
         }
+
+        const instructions = await getInstructions();
+        if (!instructions) {
+            return;
+        }
+
         let totalErrors = 0;
         let totalWarnings = 0;
         let failedFiles: string[] = [];
@@ -172,7 +147,7 @@ export class VibeChecksProvider {
                 this.outputChannel.appendLine(`⚠️  Could not open file: ${file.filename}`);
                 continue;
             }
-            const result = await this.runCheck(document, false);
+            const result = await this.runCheck(document, instructions, false);
             if (!result.passed) {
                 failedFiles.push(file.filename);
             }

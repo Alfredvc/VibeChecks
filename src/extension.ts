@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { VibeChecksProvider } from './vibe-checks-provider';
+import { getInstructions } from './instructions';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -8,13 +9,8 @@ export function activate(context: vscode.ExtensionContext) {
     const runOn = String(config.get('runOn', 'onCommand'));
 
     // Register commands
-    const runCheckFileCommand = vscode.commands.registerCommand('vibeChecks.runCheckFile', async (fileUri?: vscode.Uri) => {
-        if (fileUri && fileUri instanceof vscode.Uri) {
-            const document = await vscode.workspace.openTextDocument(fileUri);
-            await provider.runCheck(document);
-        } else {
-            await provider.runCheckOnActiveEditor();
-        }
+    const runCheckFileCommand = vscode.commands.registerCommand('vibeChecks.runCheckFile', async () => {
+        await provider.runCheckOnActiveEditor();
     });
     const chooseModelCommand = vscode.commands.registerCommand('vibeChecks.chooseModel', async () => {
         const config = vscode.workspace.getConfiguration('vibeChecks');
@@ -60,13 +56,21 @@ export function activate(context: vscode.ExtensionContext) {
     if (runOn === 'onSave') {
         context.subscriptions.push(
             vscode.workspace.onDidSaveTextDocument(async (doc) => {
-                await provider.runCheck(doc);
+                const instructions = await getInstructions();
+                if (!instructions) {
+                    return;
+                }
+                await provider.runCheck(doc, instructions);
             })
         );
     } else if (runOn === 'onOpen') {
         context.subscriptions.push(
             vscode.workspace.onDidOpenTextDocument(async (doc) => {
-                await provider.runCheck(doc);
+                const instructions = await getInstructions();
+                if (!instructions) {
+                    return;
+                }
+                await provider.runCheck(doc, instructions);
             })
         );
     } else if (runOn === 'onChange') {
@@ -74,7 +78,11 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.workspace.onDidChangeTextDocument(async (e) => {
                 if (provider.debounceTimer) clearTimeout(provider.debounceTimer);
                 provider.debounceTimer = setTimeout(async () => {
-                    await provider.runCheck(e.document);
+                    const instructions = await getInstructions();
+                    if (!instructions) {
+                        return;
+                    }
+                    await provider.runCheck(e.document, instructions);
                 }, 1500);
             })
         );
@@ -89,4 +97,4 @@ export function activate(context: vscode.ExtensionContext) {
     }
 }
 
-export function deactivate() {}
+export function deactivate() { }

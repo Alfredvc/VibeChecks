@@ -4,7 +4,7 @@ import { CheckResult } from "./types";
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-export async function callLanguageModel(instructions: string, diff: string, modelId: string, filePath: string, languageId: string): Promise<string> {
+export async function callLanguageModel(instructions: string, sourceCode: string, modelId: string, filePath: string, languageId: string): Promise<string> {
     try {
         // Check if Language Model API is available
         if (!vscode.lm.selectChatModels) {
@@ -23,7 +23,7 @@ export async function callLanguageModel(instructions: string, diff: string, mode
         // Prepare the prompt
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         const relPath = workspaceRoot && filePath ? path.relative(workspaceRoot, filePath) : filePath || '';
-        const prompt = buildPrompt(instructions, diff, relPath, languageId);
+        const prompt = buildPrompt(instructions, sourceCode, relPath, languageId);
 
         // Debug: Save prompt if debugPrompt is enabled
         const config = vscode.workspace.getConfiguration('vibeChecks');
